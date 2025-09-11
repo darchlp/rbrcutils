@@ -1,4 +1,51 @@
-consecutive_cat_plot <- function(data,
+#' Plot a series of categorical variables.
+#'
+#' @param .df A data.frame or tibble that contains the categorical variables in `var`.
+#' @param var A vector of categorical variables to include in the plot. Can be a named list to automatically rename the variables in the plot.
+#' @param colors A named vector of colours to assign to each level of the `var` variable in format of `description == color code`. The order of the vector will be used in the legend.
+#' @param print_data A helper option to print some raw data to the consele. Can be helpful when debugging, or adding data to reports.
+#' @param rev_fill Used to reverse the color of the bars in the plot.
+#' @param xaxis_size The size of the text on the x-axis.
+#' @param yaxis_size The size of the text on the y-axis.
+#' @param legend_size The size of the text on the legend.
+#' @param label_width The number of characters before words wrap. Used in the y-axis and legend.
+#' @param pct_cut Categories with a pct > than this value will not print the % on the plot.
+#' @param save A logical to determine if the plot should be saved to your working directory "plots/**.png".
+#' @param bg Background color.
+#' @param width Width of plot.
+#' @param height Height of plot.
+#' @param units Unit of plot size.
+#' 
+#' @return A ggplot object. This means you should be able to make further adjustments to it if required.
+#' @export
+#' 
+#' @import dplyr
+#' @import tidyr
+#' @import tidyselect
+#' @import ggplot2
+#' @import forcats
+#' @import rlang
+#' @import stats
+#' 
+#' @examples
+#' df <- data.frame(
+#'   "record_id" = 1:50,
+#'   "apples" = sample(as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = T),
+#'   "bananas" = sample(as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = T),
+#'   "pears" = sample(as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = T)
+#' )
+#' 
+#' consecutive_cat_plot(
+#'   df,
+#'   c("Apples" = "apples", "Bananas" = "bananas", "Pears" = "pears"),
+#'   colors = c(
+#'     "Bad" = "#b44218",
+#'     "Neutral" = "#b4b4b4",
+#'     "Good" = "#179dab"
+#'   )
+#' )
+
+consecutive_cat_plot <- function(.df,
                                  var,
                                  colors, 
                                  print_data = FALSE,
@@ -13,21 +60,21 @@ consecutive_cat_plot <- function(data,
                                  width = 15.89,
                                  height = 16,
                                  units = "cm") {
-  dat <- data %>%
-    select(record_id, all_of(var)) %>%
-    pivot_longer(!c(record_id)) 
+  dat <- .df %>%
+    dplyr::select(record_id, tidyselect::all_of(var)) %>%
+    tidyr::pivot_longer(!c(record_id)) 
   
   counts <- dat %>%
-    drop_na() %>%
-    count(name) %>%
-    deframe()
+    tidyr::drop_na() %>%
+    dplyr::count(name) %>%
+    tibble::deframe()
   
   plot_data <- dat %>%
-    group_by(name,value) %>%
-    summarise(n = n()) %>%
-    drop_na() %>%
-    mutate(pct = n/sum(n)) %>%
-    ungroup() 
+    dplyr::group_by(name,value) %>%
+    dplyr::summarise(n = n()) %>%
+    tidyr::drop_na() %>%
+    dplyr::mutate(pct = n/sum(n)) %>%
+    dplyr::ungroup() 
   
   if (print_data == T) {
     print(plot_data, n = nrow(plot_data))
@@ -35,48 +82,48 @@ consecutive_cat_plot <- function(data,
   
   if (rev_fill == TRUE) {
     plot <- plot_data %>%
-      ggplot(aes(x = pct, y = fct_reorder2(name,value,desc(pct)), fill = fct_rev(value))) 
+      ggplot2::ggplot(ggplot2::aes(x = pct, y = forcats::fct_reorder2(name,value,dplyr::desc(pct)), fill = forcats::fct_rev(value))) 
   } else if (rev_fill == FALSE) {
     plot <- plot_data %>%
-      ggplot(aes(x = pct, y = fct_reorder2(name,value,desc(pct)), fill = value))  
+      ggplot2::ggplot(ggplot2::aes(x = pct, y = forcats::fct_reorder2(name,value,dplyr::desc(pct)), fill = value))  
   } else if (rev_fill == "as_is") {
     plot <- plot_data %>%
-      ggplot(aes(x = pct, y = fct_rev(name), fill = fct_rev(value)))  
+      ggplot2::ggplot(ggplot2::aes(x = pct, y = forcats::fct_rev(name), fill = forcats::fct_rev(value)))  
   }
   plot <- plot +
-    geom_col() +
-    scale_fill_manual(values = colors,
+    ggplot2::geom_col() +
+    ggplot2::scale_fill_manual(values = colors,
                       limits = names(colors),
                       breaks = names(colors),
-                      labels = str_wrap(names(colors),label_width)
+                      labels = stringr::str_wrap(names(colors),label_width)
     ) +
-    scale_x_continuous(labels = scales::percent) + 
-    scale_y_discrete(labels = as_function(~ str_c(str_wrap(.x,label_width), "\nn = ", counts[.x]))) + # add in the n counts
-    theme_minimal() +
-    theme(text = element_text(colour = "black",
+    ggplot2::scale_x_continuous(labels = scales::percent) + 
+    ggplot2::scale_y_discrete(labels = rlang::as_function(~ stringr::str_c(stringr::str_wrap(.x,label_width), "\nn = ", counts[.x]))) + # add in the n counts
+    ggplot2::theme_minimal() +
+    ggplot2::theme(text = ggplot2::element_text(colour = "black",
                               size = 16),
-          axis.text.x = element_text(size = xaxis_size),
-          axis.text.y = element_text(size = yaxis_size),
-          axis.text = element_text(colour = "black"),
+          axis.text.x = ggplot2::element_text(size = xaxis_size),
+          axis.text.y = ggplot2::element_text(size = yaxis_size),
+          axis.text = ggplot2::element_text(colour = "black"),
           legend.position = "bottom",
-          legend.title = element_blank(),
-          legend.text = element_text(size = legend_size),
-          plot.background = element_rect(fill='transparent', color=NA),
-          plot.caption = element_text(colour = "black",size = 7),
-          panel.background = element_blank(),
-          panel.border = element_blank(),
-          panel.grid.major.y = element_blank(),
-          panel.grid.minor.y = element_blank(),
+          legend.title = ggplot2::element_blank(),
+          legend.text = ggplot2::element_text(size = legend_size),
+          plot.background = ggplot2::element_rect(fill='transparent', color=NA),
+          plot.caption = ggplot2::element_text(colour = "black",size = 7),
+          panel.background = ggplot2::element_blank(),
+          panel.border = ggplot2::element_blank(),
+          panel.grid.major.y = ggplot2::element_blank(),
+          panel.grid.minor.y = ggplot2::element_blank(),
           panel.spacing = unit(0,"npc"),
-          legend.background = element_blank(),
-          legend.box.background = element_blank()
+          legend.background = ggplot2::element_blank(),
+          legend.box.background = ggplot2::element_blank()
           
     ) +
-    xlab(NULL) +
-    ylab(NULL) + 
-    coord_cartesian(clip = "off") +
-    geom_text(
-      aes(
+    ggplot2::xlab(NULL) +
+    ggplot2::ylab(NULL) + 
+    ggplot2::coord_cartesian(clip = "off") +
+    ggplot2::geom_text(
+      ggplot2::aes(
         label = 
           ifelse(pct >= pct_cut,
                  paste0(format(round(100*pct, 1), nsmall = 1), "%"),
@@ -86,14 +133,14 @@ consecutive_cat_plot <- function(data,
       colour = "white",
       fontface = "bold",
       check_overlap = T,
-      position = position_stack(vjust = 0.5)
+      position = ggplot2::position_stack(vjust = 0.5)
     )
   
   
   
   if (save == TRUE) {
     f_name <- paste0("plots/",var[[1]],"_.png")
-    ggsave(filename = f_name, 
+    ggplot2::ggsave(filename = f_name, 
            plot = plot,
            bg=bg,
            width = width,
@@ -109,33 +156,3 @@ consecutive_cat_plot <- function(data,
   return(plot)
   
 }
-
-# consecutive_cat_plot(
-#   scored,
-#   c(
-#     "Support for new staff" = "supportnew_collapsed",
-#     "Access to mental health support" = "mentalsupport_collapsed",
-#     "Preventing physical violence" = "violence_collapsed",
-#     "Preventing verbal abuse" = "abuse_collapsed",
-#     "Exposure to infectious patients" = "exposure_collapsed",
-#     "Minimising radiation exposure" = "radiation_collapsed",
-#     "Use of telehealth" = "telehealth_collapsed",
-#     "Ability to deploy more staff" = "capacity_collapsed",
-#     "Isolation of vulnerable patients" = "isolation_collapsed",
-#     "Communication of policies and procedures" = "communication_collapsed",
-#     "Safe exposure to chemicals" = "chemicals_collapsed",
-#     "Cleaning practices" = "cleaning_collapsed",
-#     "Access to manual handling tools" = "access_equip_collapsed",
-#     "Handover processes" = "handover_collapsed",
-#     "Debriefing after incident" = "debriefing_collapsed",
-#     "Skill mix" = "skills_mix_collapsed",
-#     "Staffing levels" = "staffing_levels_collapsed"
-#   ),
-#   colors = c(
-#     "Satisfactory" = "#179dab",
-#     "Unsatisfactory" = "#b4b4b4",
-#     "No policy" = "#b44218"
-#   ),
-#   label_width = 20,
-#   save = F
-# )
