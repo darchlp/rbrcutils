@@ -3,7 +3,7 @@
 #' @param .df A data.frame or tibble that contains the categorical variables in `var`.
 #' @param var A vector of categorical variables to include in the plot. Can be a named list to automatically rename the variables in the plot.
 #' @param colors A named vector of colours to assign to each level of the `var` variable in format of `description == color code`. The order of the vector will be used in the legend.
-#' @param print_data A helper option to print some raw data to the consele. Can be helpful when debugging, or adding data to reports.
+#' @param print_data A helper option to print some raw data to the console. Can be helpful when debugging, or adding data to reports.
 #' @param rev_fill Used to reverse the color of the bars in the plot.
 #' @param xaxis_size The size of the text on the x-axis.
 #' @param yaxis_size The size of the text on the y-axis.
@@ -15,26 +15,28 @@
 #' @param width Width of plot.
 #' @param height Height of plot.
 #' @param units Unit of plot size.
-#' 
+#'
 #' @return A ggplot object. This means you should be able to make further adjustments to it if required.
 #' @export
-#' 
+#'
 #' @import dplyr
+#' @importFrom magrittr %>%
 #' @import tidyr
 #' @import tidyselect
+#' @importFrom scales percent
+#' @import tibble
 #' @import ggplot2
 #' @import forcats
 #' @import rlang
-#' @import stats
-#' 
+#'
 #' @examples
 #' df <- data.frame(
 #'   "record_id" = 1:50,
-#'   "apples" = sample(as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = T),
-#'   "bananas" = sample(as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = T),
-#'   "pears" = sample(as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = T)
+#'   "apples" = sample(forcats::as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = TRUE),
+#'   "bananas" = sample(forcats::as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = TRUE),
+#'   "pears" = sample(forcats::as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = TRUE)
 #' )
-#' 
+#'
 #' consecutive_cat_plot(
 #'   df,
 #'   c("Apples" = "apples", "Bananas" = "bananas", "Pears" = "pears"),
@@ -45,89 +47,112 @@
 #'   )
 #' )
 
-consecutive_cat_plot <- function(.df,
-                                 var,
-                                 colors, 
-                                 print_data = FALSE,
-                                 rev_fill = FALSE,
-                                 xaxis_size = 9,
-                                 yaxis_size = 9,
-                                 legend_size = 12,
-                                 label_width = 14,
-                                 pct_cut = 0.15,
-                                 save = FALSE,
-                                 bg = "transparent",
-                                 width = 15.89,
-                                 height = 16,
-                                 units = "cm") {
+consecutive_cat_plot <- function(
+  .df,
+  var,
+  colors,
+  print_data = FALSE,
+  rev_fill = FALSE,
+  xaxis_size = 9,
+  yaxis_size = 9,
+  legend_size = 12,
+  label_width = 14,
+  pct_cut = 0.15,
+  save = FALSE,
+  bg = "transparent",
+  width = 15.89,
+  height = 16,
+  units = "cm"
+) {
   dat <- .df %>%
     dplyr::select(record_id, tidyselect::all_of(var)) %>%
-    tidyr::pivot_longer(!c(record_id)) 
-  
+    tidyr::pivot_longer(!c(record_id))
+
   counts <- dat %>%
     tidyr::drop_na() %>%
     dplyr::count(name) %>%
     tibble::deframe()
-  
+
   plot_data <- dat %>%
-    dplyr::group_by(name,value) %>%
+    dplyr::group_by(name, value) %>%
     dplyr::summarise(n = n()) %>%
     tidyr::drop_na() %>%
-    dplyr::mutate(pct = n/sum(n)) %>%
-    dplyr::ungroup() 
-  
+    dplyr::mutate(pct = n / sum(n)) %>%
+    dplyr::ungroup()
+
   if (print_data == T) {
     print(plot_data, n = nrow(plot_data))
   }
-  
+
   if (rev_fill == TRUE) {
     plot <- plot_data %>%
-      ggplot2::ggplot(ggplot2::aes(x = pct, y = forcats::fct_reorder2(name,value,dplyr::desc(pct)), fill = forcats::fct_rev(value))) 
+      ggplot2::ggplot(ggplot2::aes(
+        x = pct,
+        y = forcats::fct_reorder2(name, value, dplyr::desc(pct)),
+        fill = forcats::fct_rev(value)
+      ))
   } else if (rev_fill == FALSE) {
     plot <- plot_data %>%
-      ggplot2::ggplot(ggplot2::aes(x = pct, y = forcats::fct_reorder2(name,value,dplyr::desc(pct)), fill = value))  
+      ggplot2::ggplot(ggplot2::aes(
+        x = pct,
+        y = forcats::fct_reorder2(name, value, dplyr::desc(pct)),
+        fill = value
+      ))
   } else if (rev_fill == "as_is") {
     plot <- plot_data %>%
-      ggplot2::ggplot(ggplot2::aes(x = pct, y = forcats::fct_rev(name), fill = forcats::fct_rev(value)))  
+      ggplot2::ggplot(ggplot2::aes(
+        x = pct,
+        y = forcats::fct_rev(name),
+        fill = forcats::fct_rev(value)
+      ))
   }
   plot <- plot +
     ggplot2::geom_col() +
-    ggplot2::scale_fill_manual(values = colors,
-                      limits = names(colors),
-                      breaks = names(colors),
-                      labels = stringr::str_wrap(names(colors),label_width)
+    ggplot2::scale_fill_manual(
+      values = colors,
+      limits = names(colors),
+      breaks = names(colors),
+      labels = stringr::str_wrap(names(colors), label_width)
     ) +
-    ggplot2::scale_x_continuous(labels = scales::percent) + 
-    ggplot2::scale_y_discrete(labels = rlang::as_function(~ stringr::str_c(stringr::str_wrap(.x,label_width), "\nn = ", counts[.x]))) + # add in the n counts
+    ggplot2::scale_x_continuous(labels = scales::percent) +
+    ggplot2::scale_y_discrete(
+      labels = rlang::as_function(
+        ~ stringr::str_c(
+          stringr::str_wrap(.x, label_width),
+          "\nn = ",
+          counts[.x]
+        )
+      )
+    ) + # add in the n counts
     ggplot2::theme_minimal() +
-    ggplot2::theme(text = ggplot2::element_text(colour = "black",
-                              size = 16),
-          axis.text.x = ggplot2::element_text(size = xaxis_size),
-          axis.text.y = ggplot2::element_text(size = yaxis_size),
-          axis.text = ggplot2::element_text(colour = "black"),
-          legend.position = "bottom",
-          legend.title = ggplot2::element_blank(),
-          legend.text = ggplot2::element_text(size = legend_size),
-          plot.background = ggplot2::element_rect(fill='transparent', color=NA),
-          plot.caption = ggplot2::element_text(colour = "black",size = 7),
-          panel.background = ggplot2::element_blank(),
-          panel.border = ggplot2::element_blank(),
-          panel.grid.major.y = ggplot2::element_blank(),
-          panel.grid.minor.y = ggplot2::element_blank(),
-          panel.spacing = unit(0,"npc"),
-          legend.background = ggplot2::element_blank(),
-          legend.box.background = ggplot2::element_blank()
-          
+    ggplot2::theme(
+      text = ggplot2::element_text(colour = "black", size = 16),
+      axis.text.x = ggplot2::element_text(size = xaxis_size),
+      axis.text.y = ggplot2::element_text(size = yaxis_size),
+      axis.text = ggplot2::element_text(colour = "black"),
+      legend.position = "bottom",
+      legend.title = ggplot2::element_blank(),
+      legend.text = ggplot2::element_text(size = legend_size),
+      plot.background = ggplot2::element_rect(fill = 'transparent', color = NA),
+      plot.caption = ggplot2::element_text(colour = "black", size = 7),
+      panel.background = ggplot2::element_blank(),
+      panel.border = ggplot2::element_blank(),
+      panel.grid.major.y = ggplot2::element_blank(),
+      panel.grid.minor.y = ggplot2::element_blank(),
+      panel.spacing = unit(0, "npc"),
+      legend.background = ggplot2::element_blank(),
+      legend.box.background = ggplot2::element_blank()
     ) +
     ggplot2::xlab(NULL) +
-    ggplot2::ylab(NULL) + 
+    ggplot2::ylab(NULL) +
     ggplot2::coord_cartesian(clip = "off") +
     ggplot2::geom_text(
       ggplot2::aes(
-        label = 
-          ifelse(pct >= pct_cut,
-                 paste0(format(round(100*pct, 1), nsmall = 1), "%"),
-                 NA),
+        label = ifelse(
+          pct >= pct_cut,
+          paste0(format(round(100 * pct, 1), nsmall = 1), "%"),
+          NA
+        ),
         vjust = ifelse(pct >= 0.10, "centre", "centre"),
       ),
       colour = "white",
@@ -135,24 +160,31 @@ consecutive_cat_plot <- function(.df,
       check_overlap = T,
       position = ggplot2::position_stack(vjust = 0.5)
     )
-  
-  
-  
+
   if (save == TRUE) {
-    f_name <- paste0("plots/",var[[1]],"_.png")
-    ggplot2::ggsave(filename = f_name, 
-           plot = plot,
-           bg=bg,
-           width = width,
-           height = height,
-           units = units)
-    print(paste0("Plot saved as '", f_name,"', with dimensions: ",
-                 width, ":",height, ", background: '", bg, "'."))
+    f_name <- paste0("plots/", var[[1]], "_.png")
+    ggplot2::ggsave(
+      filename = f_name,
+      plot = plot,
+      bg = bg,
+      width = width,
+      height = height,
+      units = units
+    )
+    message(paste0(
+      "Plot saved as '",
+      f_name,
+      "', with dimensions: ",
+      width,
+      ":",
+      height,
+      ", background: '",
+      bg,
+      "'."
+    ))
   } else if (save == FALSE) {
-    print("Plot not saved")
+    message("Plot not saved")
   }
-  
-  #list(plot = plot)
+
   return(plot)
-  
 }

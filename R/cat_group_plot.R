@@ -1,102 +1,159 @@
-cat_group_plot <- function(df,
-                           xvar,
-                           xlab = NULL,
-                           yvar,
-                           ylab = NULL,
-                           colors,
-                           label_width = 20,
-                           lbl_cutoff = 0.06,
-                           wrap_length = 14,
-                           legend.text = 12,
-                           save = FALSE,
-                           bg = "transparent",
-                           width = 15.89,
-                           height = 10,
-                           units = "cm") {
-  
-  plot_data <- df %>%
-    select(record_id, 
-           .data[[xvar]],
-           .data[[yvar]]
-    ) %>%
-    pivot_longer(!c(record_id,.data[[yvar]]))
-  
-  
+#' Plot a categorical variable over a grouping variable.
+#'
+#' @param .df A data.frame or tibble that contains a categorical and grouping variable.
+#' @param xvar The categorical variable to include in the plot.
+#' @param xlab The x-axis label.
+#' @param yvar The grouping variable to include in the plot.
+#' @param ylab The y-axis label.
+#' @param colors A named vector of colours to assign to each level of the `xvar` variable in format of `description == color code`. The order of the vector will be used in the legend.
+#' @param label_width The number of characters before words wrap. Used in the y-axis and legend.
+#' @param pct_cut Categories with a pct > than this value will not print the % on the plot.
+#' @param legend_size The size of the text on the legend.
+#' @param save A logical to determine if the plot should be saved to your working directory "plots/**.png".
+#' @param bg Background color.
+#' @param width Width of plot.
+#' @param height Height of plot.
+#' @param units Unit of plot size.
+#'
+#' @return A ggplot object. This means you should be able to make further adjustments to it if required.
+#' @export
+#'
+#' @import dplyr
+#' @importFrom magrittr %>%
+#' @importFrom scales percent
+#' @import tibble
+#' @import tidyr
+#' @import tidyselect
+#' @import ggplot2
+#' @import forcats
+#' @import rlang
+#'
+#' @examples
+#' df <- data.frame(
+#'   "record_id" = 1:50,
+#'   "apples" = sample(
+#'     forcats::as_factor(c("Good", "Neutral", "Bad")),
+#'     size = 50,
+#'     replace = TRUE
+#'   ),
+#'   "group" = sample(
+#'     forcats::as_factor(c("Group 1", "Group 2", "Group 3")),
+#'     size = 50,
+#'     replace = TRUE
+#'   )
+#' )
+#' cat_group_plot(
+#'   df,
+#'   xvar = "apples",
+#'   yvar = "group",
+#'   colors = c(
+#'     "Bad" = "#b44218",
+#'     "Neutral" = "#b4b4b4",
+#'     "Good" = "#179dab"
+#'   )
+#' )
+
+cat_group_plot <- function(
+  .df,
+  xvar,
+  xlab = NULL,
+  yvar,
+  ylab = NULL,
+  colors,
+  label_width = 20,
+  pct_cut = 0.06,
+  legend_size = 12,
+  save = FALSE,
+  bg = "transparent",
+  width = 15.89,
+  height = 10,
+  units = "cm"
+) {
+  plot_data <- .df %>%
+    dplyr::select(record_id, .data[[xvar]], .data[[yvar]]) %>%
+    tidyr::pivot_longer(!c(record_id, .data[[yvar]]))
+
   counts <- plot_data %>%
-    drop_na() %>%
-    count(.data[[yvar]]) %>%
-    deframe()
-  
-  # print(counts)
-  
+    tidyr::drop_na() %>%
+    dplyr::count(.data[[yvar]]) %>%
+    tibble::deframe()
+
   plot_data <- plot_data %>%
-    group_by(.data[[yvar]],name,value) %>%
-    summarise(n = n()) %>%
-    drop_na() %>%
-    mutate(pct = n/sum(n)) 
-  
+    dplyr::group_by(.data[[yvar]], name, value) %>%
+    dplyr::summarise(n = n()) %>%
+    tidyr::drop_na() %>%
+    dplyr::mutate(pct = n / sum(n))
+
   plot <- plot_data %>%
-    ggplot(aes(x = .data[[yvar]], y = pct, fill = value)) + 
-    geom_col() + 
-    
-    scale_fill_manual(values = colors,
-                      limits = names(colors),
-    ) +
-    scale_y_continuous(labels = scales::percent) + 
-    scale_x_discrete(
-      labels = as_function(~ str_c(str_wrap(.x,label_width), "\nn = ", counts[.x])),
+    ggplot2::ggplot(ggplot2::aes(x = .data[[yvar]], y = pct, fill = value)) +
+    ggplot2::geom_col() +
+    ggplot2::scale_fill_manual(values = colors, limits = names(colors), ) +
+    ggplot2::scale_y_continuous(labels = scales::percent) +
+    ggplot2::scale_x_discrete(
+      labels = rlang::as_function(
+        ~ stringr::str_c(
+          stringr::str_wrap(.x, label_width),
+          "\nn = ",
+          counts[.x]
+        )
+      ),
       position = "top"
-    ) + 
-    
-    
-    
-    theme_minimal() + 
-    theme(text = element_text(colour = "black",
-                              size = 12),
-          axis.text.x = element_text(size = 12),
-          axis.text.y = element_text(size = 12),
-          axis.text = element_text(colour = "black"),
-          axis.title.y = element_text(size = 12),
-          legend.position = "bottom",
-          legend.title = element_blank(),
-          legend.text = element_text(size = legend.text),
-          plot.background = element_rect(fill='transparent', color=NA),
-          legend.background = element_blank(),
-          legend.box.background = element_blank()
     ) +
-    labs(x = xlab,
-         y = ylab) + 
-    coord_cartesian(clip = "off") + 
-    geom_text(
-      aes(
-        label = 
-          ifelse(pct >= lbl_cutoff,
-                 paste0(format(round(100*pct, 1), nsmall = 1), "%"),
-                 NA),
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
+      text = ggplot2::element_text(colour = "black", size = 12),
+      axis.text.x = ggplot2::element_text(size = 12),
+      axis.text.y = ggplot2::element_text(size = 12),
+      axis.text = ggplot2::element_text(colour = "black"),
+      axis.title.y = ggplot2::element_text(size = 12),
+      legend.position = "bottom",
+      legend.title = ggplot2::element_blank(),
+      legend.text = ggplot2::element_text(size = legend_size),
+      plot.background = ggplot2::element_rect(fill = 'transparent', color = NA),
+      legend.background = ggplot2::element_blank(),
+      legend.box.background = ggplot2::element_blank()
+    ) +
+    ggplot2::labs(x = xlab, y = ylab) +
+    ggplot2::coord_cartesian(clip = "off") +
+    ggplot2::geom_text(
+      ggplot2::aes(
+        label = ifelse(
+          pct >= pct_cut,
+          paste0(format(round(100 * pct, 1), nsmall = 1), "%"),
+          NA
+        ),
         vjust = ifelse(pct >= 0.10, "centre", "centre"),
       ),
       colour = "white",
       fontface = "bold",
-      #size = 3,
       check_overlap = T,
-      position = position_stack(vjust = 0.5)
-    ) 
-  
+      position = ggplot2::position_stack(vjust = 0.5)
+    )
+
   if (save == TRUE) {
-    f_name <- paste0("plots/",xvar,"_", yvar,".png")
-    ggsave(filename = f_name, 
-           plot = plot,
-           bg=bg,
-           width = width,
-           height = height,
-           units = units)
-    print(paste0("Plot saved as '", f_name,"', with dimensions: ",
-                 width, ":",height, ", background: '", bg, "'."))
+    f_name <- paste0("plots/", xvar, "_", yvar, ".png")
+    ggplot2::ggsave(
+      filename = f_name,
+      plot = plot,
+      bg = bg,
+      width = width,
+      height = height,
+      units = units
+    )
+    message(paste0(
+      "Plot saved as '",
+      f_name,
+      "', with dimensions: ",
+      width,
+      ":",
+      height,
+      ", background: '",
+      bg,
+      "'."
+    ))
   } else if (save == FALSE) {
-    print("Plot not saved")
+    message("Plot not saved")
   }
-  
-  #list(plot = plot)
+
   return(plot)
-  
 }

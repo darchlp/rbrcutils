@@ -29,7 +29,7 @@ consecutive_cat_plot(
 
 \item{colors}{A named vector of colours to assign to each level of the \code{var} variable in format of \verb{description == color code}. The order of the vector will be used in the legend.}
 
-\item{print_data}{A helper option to print some raw data to the consele. Can be helpful when debugging, or adding data to reports.}
+\item{print_data}{A helper option to print some raw data to the console. Can be helpful when debugging, or adding data to reports.}
 
 \item{rev_fill}{Used to reverse the color of the bars in the plot.}
 
@@ -62,9 +62,9 @@ Plot a series of categorical variables.
 \examples{
 df <- data.frame(
   "record_id" = 1:50,
-  "apples" = sample(as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = T),
-  "bananas" = sample(as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = T),
-  "pears" = sample(as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = T)
+  "apples" = sample(forcats::as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = TRUE),
+  "bananas" = sample(forcats::as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = TRUE),
+  "pears" = sample(forcats::as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = TRUE)
 )
 
 consecutive_cat_plot(
