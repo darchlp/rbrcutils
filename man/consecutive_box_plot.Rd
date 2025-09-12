@@ -70,7 +70,6 @@ Plot a series of numerical variables in the form of a box plot.
 }
 \examples{
 df <- data.frame(
-  "record_id" = 1:50,
   "number1" = sample(1:5, size = 50, replace = TRUE),
   "number2" = sample(1:5, size = 50, replace = TRUE),
   "number3" = sample(1:5, size = 50, replace = TRUE)

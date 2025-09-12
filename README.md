@@ -32,7 +32,6 @@ Plot a series of categorical variables.
 ``` r
 library(rbrcutils)
 df <- data.frame(
-  "record_id" = 1:50,
   "apples" = sample(
     forcats::as_factor(c("Good", "Neutral", "Bad")),
     size = 50,
@@ -70,7 +69,6 @@ Plot a series of numerical variables.
 ``` r
 library(rbrcutils)
 df <- data.frame(
-  "record_id" = 1:50,
   "number1" = sample(1:5, size = 50, replace = T),
   "number2" = sample(1:5, size = 50, replace = T),
   "number3" = sample(1:5, size = 50, replace = T)

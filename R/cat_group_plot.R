@@ -30,7 +30,6 @@
 #'
 #' @examples
 #' df <- data.frame(
-#'   "record_id" = 1:50,
 #'   "apples" = sample(
 #'     forcats::as_factor(c("Good", "Neutral", "Bad")),
 #'     size = 50,
@@ -70,8 +69,8 @@ cat_group_plot <- function(
   units = "cm"
 ) {
   plot_data <- .df %>%
-    dplyr::select(record_id, .data[[xvar]], .data[[yvar]]) %>%
-    tidyr::pivot_longer(!c(record_id, .data[[yvar]]))
+    dplyr::select(.data[[xvar]], .data[[yvar]]) %>%
+    tidyr::pivot_longer(!c(.data[[yvar]]))
 
   counts <- plot_data %>%
     tidyr::drop_na() %>%

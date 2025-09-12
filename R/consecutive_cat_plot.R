@@ -31,7 +31,6 @@
 #'
 #' @examples
 #' df <- data.frame(
-#'   "record_id" = 1:50,
 #'   "apples" = sample(forcats::as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = TRUE),
 #'   "bananas" = sample(forcats::as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = TRUE),
 #'   "pears" = sample(forcats::as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = TRUE)
@@ -65,8 +64,8 @@ consecutive_cat_plot <- function(
   units = "cm"
 ) {
   dat <- .df %>%
-    dplyr::select(record_id, tidyselect::all_of(var)) %>%
-    tidyr::pivot_longer(!c(record_id))
+    dplyr::select(tidyselect::all_of(var)) %>%
+    tidyr::pivot_longer(dplyr::everything())
 
   counts <- dat %>%
     tidyr::drop_na() %>%

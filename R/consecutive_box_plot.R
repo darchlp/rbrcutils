@@ -21,7 +21,6 @@
 #'
 #' @return A ggplot object. This means you should be able to make further adjustments to it if required.
 #'
-#' 
 #' @import dplyr
 #' @importFrom magrittr %>%
 #' @importFrom stats median
@@ -35,7 +34,6 @@
 #' @export
 #' @examples
 #' df <- data.frame(
-#'   "record_id" = 1:50,
 #'   "number1" = sample(1:5, size = 50, replace = TRUE),
 #'   "number2" = sample(1:5, size = 50, replace = TRUE),
 #'   "number3" = sample(1:5, size = 50, replace = TRUE)
@@ -81,14 +79,14 @@ consecutive_box_plot <- function(
   units = "cm"
 ) {
   plot_data <- .df %>%
-    dplyr::select(record_id, dplyr::all_of(var)) %>%
+    dplyr::select(dplyr::all_of(var)) %>%
     dplyr::mutate(
       dplyr::across(
         dplyr::all_of(names(var)),
         ~ as.numeric(.x)
       )
     ) %>%
-    tidyr::pivot_longer(!c("record_id")) %>%
+    tidyr::pivot_longer(dplyr::everything()) %>%
     dplyr::mutate(name = forcats::fct_relevel(name, names(var)))
 
   counts <- plot_data %>%
@@ -335,15 +333,3 @@ consecutive_box_plot <- function(
 
   return(plot)
 }
-
-# consecutive_box_plot(c("Coworker relationship" = "coworker_relationship",
-#                   "Coworker conflict" =  "coworker_conflict"),
-#                 labels = c("1" = "Strongly diagree",
-#                            "2" = "Disagree",
-#                            "3" = "Neutral",
-#                            "4" = "Agree",
-#                            "5" = "Strongly agree"),
-#                 reverse = T,
-#                 ylab = "Coworker relationship",
-#                 mean = T,
-#                 global_mean = T)

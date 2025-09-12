@@ -61,7 +61,6 @@ Plot a series of categorical variables.
 }
 \examples{
 df <- data.frame(
-  "record_id" = 1:50,
   "apples" = sample(forcats::as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = TRUE),
   "bananas" = sample(forcats::as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = TRUE),
   "pears" = sample(forcats::as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = TRUE)

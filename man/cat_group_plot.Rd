@@ -58,7 +58,6 @@ Plot a categorical variable over a grouping variable.
 }
 \examples{
 df <- data.frame(
-  "record_id" = 1:50,
   "apples" = sample(
     forcats::as_factor(c("Good", "Neutral", "Bad")),
     size = 50,
