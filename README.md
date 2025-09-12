@@ -7,9 +7,8 @@
 
 <!-- badges: end -->
 
-The goal of rbrcutils is to provide access to functions to produce
-tables and figures used commonly in developing reports for the Rosemary
-Bryant AO Research Centre.
+The goal of rbrcutils is to provide access to functions used commonly in
+developing reports for the Rosemary Bryant AO Research Centre.
 
 ## Installation
 
@@ -23,11 +22,16 @@ pak::pak("darchlp/rbrcutils")
 
 ## Example
 
-Here are some examples of the plots which can be produced:
+Currently, this package provides functionality for producing plots to
+visualise categorical variables (in the form of column plots) and
+numerical variables (in the form of box and whisker plots). These plots
+can either be a series of variables over the whole dataset
+`consecutive_**_plot` or a single variable by a grouping variable
+`**_group_plot`.
 
-### Consecutive categorical plot
+### Categorical variables
 
-Plot a series of categorical variables.
+Plot a series of categorical variables over the whole data.
 
 ``` r
 library(rbrcutils)
@@ -62,9 +66,40 @@ consecutive_cat_plot(
 
 <img src="man/figures/README-consecutive_cat_plot-1.png" width="100%" />
 
-### Consecutive box plot
+Or a categorical variable by a grouping variable.
 
-Plot a series of numerical variables.
+``` r
+library(rbrcutils)
+df <- data.frame(
+  "apples" = sample(
+    forcats::as_factor(c("Good", "Neutral", "Bad")),
+    size = 50,
+    replace = TRUE
+  ),
+  "group" = sample(
+    forcats::as_factor(c("Group 1", "Group 2", "Group 3")),
+    size = 50,
+    replace = TRUE
+  )
+)
+cat_group_plot(
+  df,
+  xvar = "apples",
+  yvar = "group",
+  colors = c(
+    "Bad" = "#b44218",
+    "Neutral" = "#b4b4b4",
+    "Good" = "#179dab"
+  )
+)
+#> Plot not saved
+```
+
+<img src="man/figures/README-cat_group_plot-1.png" width="100%" />
+
+### Numeric variable plot
+
+Plot a series of numerical variables over the whole data.
 
 ``` r
 library(rbrcutils)
@@ -93,3 +128,39 @@ consecutive_box_plot(
 ```
 
 <img src="man/figures/README-consecutive_box_plot-1.png" width="100%" />
+
+Or a numeric variable by a grouping variable.
+
+``` r
+library(rbrcutils)
+df <- data.frame(
+  "number" = sample(1:5, size = 50, replace = TRUE),
+  "group" = sample(
+    forcats::as_factor(c("Group 1", "Group 2", "Group 3")),
+    size = 50,
+    replace = TRUE
+  )
+)
+
+box_group_plot(
+  df,
+  xvar = "number",
+  xvar_name = "Numeric",
+  yvar = "group",
+  yvar_name = "Grouping",
+  labels = c(
+    "1" = "Strongly disagree",
+    "2" = "Disagree",
+    "3" = "Neutral",
+    "4" = "Agree",
+    "5" = "Strongly agree"
+  )
+)
+#> Plot not saved
+#> Warning: Use of `.df[[xvar]]` is discouraged.
+#> ℹ Use `.data[[xvar]]` instead.
+#> Use of `.df[[xvar]]` is discouraged.
+#> ℹ Use `.data[[xvar]]` instead.
+```
+
+<img src="man/figures/README-box_group_plot-1.png" width="100%" />

@@ -73,7 +73,6 @@ Plot a numerical (or categorical which can be converted to numerical) by a group
 }
 \examples{
 df <- data.frame(
-  "record_id" = 1:50,
   "number" = sample(1:5, size = 50, replace = TRUE),
   "group" = sample(
 forcats::as_factor(c("Group 1", "Group 2", "Group 3")), 
@@ -95,5 +94,4 @@ box_group_plot(
     "5" = "Strongly agree"
   )
 )
-
 }

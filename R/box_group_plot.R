@@ -33,11 +33,9 @@
 #' @import forcats
 #' @import rlang
 #' @import dplyr
-
 #'
 #' @examples
 #' df <- data.frame(
-#'   "record_id" = 1:50,
 #'   "number" = sample(1:5, size = 50, replace = TRUE),
 #'   "group" = sample(
 #' forcats::as_factor(c("Group 1", "Group 2", "Group 3")), 
@@ -59,7 +57,6 @@
 #'     "5" = "Strongly agree"
 #'   )
 #' )
-#'
 
 box_group_plot <- function(
   .df,
