@@ -60,6 +60,7 @@ A ggplot object. This means you should be able to make further adjustments to it
 Plot a series of categorical variables.
 }
 \examples{
+set.seed(123)
 df <- data.frame(
   "apples" = sample(forcats::as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = TRUE),
   "bananas" = sample(forcats::as_factor(c("Good", "Neutral", "Bad")), size = 50, replace = TRUE),

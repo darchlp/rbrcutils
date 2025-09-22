@@ -57,6 +57,7 @@ A ggplot object. This means you should be able to make further adjustments to it
 Plot a categorical variable over a grouping variable.
 }
 \examples{
+set.seed(123)
 df <- data.frame(
   "apples" = sample(
     forcats::as_factor(c("Good", "Neutral", "Bad")),

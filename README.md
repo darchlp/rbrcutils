@@ -35,6 +35,24 @@ Plot a series of categorical variables over the whole data.
 
 ``` r
 library(rbrcutils)
+#> Warning: replacing previous import 'purrr::%@%' by 'rlang::%@%' when loading
+#> 'rbrcutils'
+#> Warning: replacing previous import 'purrr::flatten_lgl' by 'rlang::flatten_lgl'
+#> when loading 'rbrcutils'
+#> Warning: replacing previous import 'purrr::splice' by 'rlang::splice' when
+#> loading 'rbrcutils'
+#> Warning: replacing previous import 'purrr::flatten_chr' by 'rlang::flatten_chr'
+#> when loading 'rbrcutils'
+#> Warning: replacing previous import 'purrr::flatten_raw' by 'rlang::flatten_raw'
+#> when loading 'rbrcutils'
+#> Warning: replacing previous import 'purrr::flatten' by 'rlang::flatten' when
+#> loading 'rbrcutils'
+#> Warning: replacing previous import 'purrr::flatten_dbl' by 'rlang::flatten_dbl'
+#> when loading 'rbrcutils'
+#> Warning: replacing previous import 'purrr::invoke' by 'rlang::invoke' when
+#> loading 'rbrcutils'
+#> Warning: replacing previous import 'purrr::flatten_int' by 'rlang::flatten_int'
+#> when loading 'rbrcutils'
 df <- data.frame(
   "apples" = sample(
     forcats::as_factor(c("Good", "Neutral", "Bad")),
@@ -164,3 +182,54 @@ box_group_plot(
 ```
 
 <img src="man/figures/README-box_group_plot-1.png" width="100%" />
+
+### Factored case_match and case_when
+
+One of my favourite utilities are the `factored_case_match` and
+`factored_case_when` functions. These are basically just wrappers around
+the `dplyr::case_match` and `dplyr::case_when` functions, except it
+returns a factor with the levels in order they were defined in the
+original `...` argument.
+
+``` r
+library(rbrcutils)
+
+df <- data.frame(
+  a = c(1, 3, NA, NA, 5, 2),
+  b = c(2, 3, NA, 5, 1, 4)
+)
+
+lvl <- rlang::exprs(
+  4 ~ "Large",
+  3 ~ "Medium",
+  2 ~ "Small",
+  1 ~ "Very small"
+)
+
+dplyr::mutate(
+  df,
+    a_fct = factored_case_match(
+      a,
+      !!!lvl
+    ),
+    b_fct = factored_case_when(
+      b == 1 ~ "Very small",
+      b == 2 ~ "Small",
+      b == 3 ~ "Medium",
+      b == 4 ~ "Large",
+      is.na(b) ~ "Missing",
+      .default = NA
+    )
+  )
+#> Warning: There was 1 warning in `dplyr::mutate()`.
+#> ℹ In argument: `a_fct = factored_case_match(...)`.
+#> Caused by warning:
+#> ! 1 unknown level in `f`: Large
+#>    a  b      a_fct      b_fct
+#> 1  1  2 Very small      Small
+#> 2  3  3     Medium     Medium
+#> 3 NA NA       <NA>    Missing
+#> 4 NA  5       <NA>       <NA>
+#> 5  5  1       <NA> Very small
+#> 6  2  4      Small      Large
+```

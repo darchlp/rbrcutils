@@ -1,5 +1,5 @@
 Package: rbrcutils
-Title: What the Package Does (One Line, Title Case)
+Title: Functions For RBRC Reports
 Version: 0.0.0.9000
 Authors@R: 
     person("Lachlan", "Darch", , "lachlan.darch@unisa.edu.au", role = c("aut", "cre"),
@@ -20,4 +20,5 @@ Imports:
     ggplot2,
     rlang,
     tidyr,
-    tidyselect
+    tidyselect,
+    purrr

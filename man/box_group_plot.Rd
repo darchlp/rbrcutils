@@ -72,6 +72,7 @@ A ggplot object. This means you should be able to make further adjustments to it
 Plot a numerical (or categorical which can be converted to numerical) by a grouping variable.
 }
 \examples{
+set.seed(123)
 df <- data.frame(
   "number" = sample(1:5, size = 50, replace = TRUE),
   "group" = sample(

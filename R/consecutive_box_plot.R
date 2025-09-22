@@ -33,6 +33,7 @@
 #' 
 #' @export
 #' @examples
+#' set.seed(123)
 #' df <- data.frame(
 #'   "number1" = sample(1:5, size = 50, replace = TRUE),
 #'   "number2" = sample(1:5, size = 50, replace = TRUE),

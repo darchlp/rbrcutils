@@ -29,6 +29,7 @@
 #' @import rlang
 #'
 #' @examples
+#' set.seed(123)
 #' df <- data.frame(
 #'   "apples" = sample(
 #'     forcats::as_factor(c("Good", "Neutral", "Bad")),

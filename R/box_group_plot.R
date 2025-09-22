@@ -35,6 +35,7 @@
 #' @import dplyr
 #'
 #' @examples
+#' set.seed(123)
 #' df <- data.frame(
 #'   "number" = sample(1:5, size = 50, replace = TRUE),
 #'   "group" = sample(
