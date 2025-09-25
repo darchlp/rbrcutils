@@ -13,6 +13,7 @@ cat_group_plot(
   colors,
   label_width = 20,
   pct_cut = 0.06,
+  wrap_length = 14,
   legend_size = 12,
   save = FALSE,
   bg = "transparent",
@@ -34,9 +35,11 @@ cat_group_plot(
 
 \item{colors}{A named vector of colours to assign to each level of the \code{xvar} variable in format of \verb{description == color code}. The order of the vector will be used in the legend.}
 
-\item{label_width}{The number of characters before words wrap. Used in the y-axis and legend.}
+\item{label_width}{The number of characters before y-axis labels wrap.}
 
 \item{pct_cut}{Categories with a pct > than this value will not print the \% on the plot.}
+
+\item{wrap_length}{The number of characters before the legend labels wrap.}
 
 \item{legend_size}{The size of the text on the legend.}
 

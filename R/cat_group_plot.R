@@ -6,7 +6,8 @@
 #' @param yvar The grouping variable to include in the plot.
 #' @param ylab The y-axis label.
 #' @param colors A named vector of colours to assign to each level of the `xvar` variable in format of `description == color code`. The order of the vector will be used in the legend.
-#' @param label_width The number of characters before words wrap. Used in the y-axis and legend.
+#' @param label_width The number of characters before y-axis labels wrap. 
+#' @param wrap_length The number of characters before the legend labels wrap.
 #' @param pct_cut Categories with a pct > than this value will not print the % on the plot.
 #' @param legend_size The size of the text on the legend.
 #' @param save A logical to determine if the plot should be saved to your working directory "plots/**.png".
@@ -21,6 +22,7 @@
 #' @import dplyr
 #' @importFrom magrittr %>%
 #' @importFrom scales percent
+#' @importFrom stringr str_wrap
 #' @import tibble
 #' @import tidyr
 #' @import tidyselect
@@ -62,6 +64,7 @@ cat_group_plot <- function(
   colors,
   label_width = 20,
   pct_cut = 0.06,
+  wrap_length = 14,
   legend_size = 12,
   save = FALSE,
   bg = "transparent",
@@ -87,7 +90,7 @@ cat_group_plot <- function(
   plot <- plot_data %>%
     ggplot2::ggplot(ggplot2::aes(x = .data[[yvar]], y = pct, fill = value)) +
     ggplot2::geom_col() +
-    ggplot2::scale_fill_manual(values = colors, limits = names(colors), ) +
+    ggplot2::scale_fill_manual(values = colors, limits = names(colors), labels = stringr::str_wrap(names(colors),wrap_length)) +                    
     ggplot2::scale_y_continuous(labels = scales::percent) +
     ggplot2::scale_x_discrete(
       labels = rlang::as_function(
