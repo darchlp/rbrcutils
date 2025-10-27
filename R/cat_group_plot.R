@@ -116,7 +116,7 @@ cat_group_plot <- function(
       legend.background = ggplot2::element_blank(),
       legend.box.background = ggplot2::element_blank()
     ) +
-    ggplot2::labs(x = xlab, y = ylab) +
+    ggplot2::labs(x = ylab, y = xlab) + # These need to be the other way 
     ggplot2::coord_cartesian(clip = "off") +
     ggplot2::geom_text(
       ggplot2::aes(
