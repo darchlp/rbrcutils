@@ -11,6 +11,7 @@ consecutive_box_plot(
   label_width = 10,
   xlab = NULL,
   ylab = NULL,
+  y_lab = TRUE,
   xmin = NA,
   xmax = NA,
   sec.axis = TRUE,
@@ -37,6 +38,8 @@ consecutive_box_plot(
 \item{xlab}{The x-axis name.}
 
 \item{ylab}{The y-axis name.}
+
+\item{y_lab}{A logical indicating if the y-axis labels should be displayed.}
 
 \item{xmin}{Overwrite the minimum x-axis value if the value does not appear in the dataset.}
 

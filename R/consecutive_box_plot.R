@@ -6,6 +6,7 @@
 #' @param label_width The number of characters before words wrap. Used in the x- and y-axis labels.
 #' @param xlab The x-axis name.
 #' @param ylab The y-axis name.
+#' @param y_lab A logical indicating if the y-axis labels should be displayed.
 #' @param xmin Overwrite the minimum x-axis value if the value does not appear in the dataset.
 #' @param xmax Overwrite the maximum x-axis value if the value does not appear in the dataset.
 #' @param sec.axis A secondary axis to plot the numeric scores.
@@ -30,7 +31,7 @@
 #' @import ggplot2
 #' @import forcats
 #' @import rlang
-#' 
+#'
 #' @export
 #' @examples
 #' set.seed(123)
@@ -39,7 +40,7 @@
 #'   "number2" = sample(1:5, size = 50, replace = TRUE),
 #'   "number3" = sample(1:5, size = 50, replace = TRUE)
 #' )
-#' 
+#'
 #' consecutive_box_plot(
 #'   df,
 #'   var = c(
@@ -56,8 +57,8 @@
 #'   ),
 #'   ordered_mean = TRUE
 #' )
-#' 
-#' 
+#'
+#'
 
 consecutive_box_plot <- function(
   .df,
@@ -66,6 +67,7 @@ consecutive_box_plot <- function(
   label_width = 10,
   xlab = NULL,
   ylab = NULL,
+  y_lab = TRUE,
   xmin = NA,
   xmax = NA,
   sec.axis = TRUE,
@@ -109,16 +111,28 @@ consecutive_box_plot <- function(
   plot <- plot +
     ggplot2::geom_boxplot() +
     ggplot2::xlab(xlab) +
-    ggplot2::ylab(ylab) +
-    ggplot2::scale_y_discrete(
-      labels = rlang::as_function(
-        ~ stringr::str_c(
-          stringr::str_wrap(.x, label_width),
-          "\nn = ",
-          counts[.x]
+    ggplot2::ylab(ylab)
+
+  if (y_lab == TRUE) {
+    plot <- plot +
+      ggplot2::scale_y_discrete(
+        # add in the n counts
+        labels = rlang::as_function(
+          ~ stringr::str_c(
+            stringr::str_wrap(.x, label_width),
+            "\nn = ",
+            counts[.x]
+          )
         )
       )
-    ) + # add in the n counts
+  } else if (y_lab == FALSE) {
+    plot <- plot +
+      ggplot2::scale_y_discrete(
+        # add in the n counts
+        labels = NULL
+      )
+  }
+  plot <- plot +
     ggplot2::theme_minimal() +
     ggplot2::theme(
       text = ggplot2::element_text(color = "black"),
@@ -210,7 +224,10 @@ consecutive_box_plot <- function(
       ) +
       ggplot2::geom_vline(
         ggplot2::aes(
-          xintercept = stats::median(as.numeric(.data[["value"]]), na.rm = TRUE),
+          xintercept = stats::median(
+            as.numeric(.data[["value"]]),
+            na.rm = TRUE
+          ),
           color = "Overall median",
           linetype = "Overall median"
         ),
