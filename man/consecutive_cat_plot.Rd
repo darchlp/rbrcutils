@@ -8,6 +8,7 @@ consecutive_cat_plot(
   .df,
   var,
   colors,
+  y_lab = TRUE,
   print_data = FALSE,
   rev_fill = FALSE,
   xaxis_size = 9,
@@ -28,6 +29,8 @@ consecutive_cat_plot(
 \item{var}{A vector of categorical variables to include in the plot. Can be a named list to automatically rename the variables in the plot.}
 
 \item{colors}{A named vector of colours to assign to each level of the \code{var} variable in format of \verb{description == color code}. The order of the vector will be used in the legend.}
+
+\item{y_lab}{A logical indicating if the y-axis labels should be displayed.}
 
 \item{print_data}{A helper option to print some raw data to the console. Can be helpful when debugging, or adding data to reports.}
 

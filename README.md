@@ -16,8 +16,7 @@ You can install the development version of rbrcutils from
 [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("pak")
-pak::pak("darchlp/rbrcutils")
+remotes::install_github("darchlp/rbrcutils")
 ```
 
 ## Example

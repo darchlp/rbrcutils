@@ -3,6 +3,7 @@
 #' @param .df A data.frame or tibble that contains the categorical variables in `var`.
 #' @param var A vector of categorical variables to include in the plot. Can be a named list to automatically rename the variables in the plot.
 #' @param colors A named vector of colours to assign to each level of the `var` variable in format of `description == color code`. The order of the vector will be used in the legend.
+#' @param y_lab A logical indicating if the y-axis labels should be displayed.
 #' @param print_data A helper option to print some raw data to the console. Can be helpful when debugging, or adding data to reports.
 #' @param rev_fill Used to reverse the color of the bars in the plot.
 #' @param xaxis_size The size of the text on the x-axis.
@@ -51,6 +52,7 @@ consecutive_cat_plot <- function(
   .df,
   var,
   colors,
+  y_lab = TRUE,
   print_data = FALSE,
   rev_fill = FALSE,
   xaxis_size = 9,
@@ -114,16 +116,27 @@ consecutive_cat_plot <- function(
       breaks = names(colors),
       labels = stringr::str_wrap(names(colors), label_width)
     ) +
-    ggplot2::scale_x_continuous(labels = scales::percent) +
-    ggplot2::scale_y_discrete(
-      labels = rlang::as_function(
-        ~ stringr::str_c(
-          stringr::str_wrap(.x, label_width),
-          "\nn = ",
-          counts[.x]
+    ggplot2::scale_x_continuous(labels = scales::percent)
+
+  if (y_lab == TRUE) {
+    plot <- plot +
+      ggplot2::scale_y_discrete(
+        # add in the n counts
+        labels = rlang::as_function(
+          ~ stringr::str_c(
+            stringr::str_wrap(.x, label_width),
+            "\nn = ",
+            counts[.x]
+          )
         )
       )
-    ) + # add in the n counts
+  } else if (y_lab == FALSE) {
+    plot <- plot +
+      ggplot2::scale_y_discrete(
+        labels = NULL
+      )
+  }
+  plot <- plot +
     ggplot2::theme_minimal() +
     ggplot2::theme(
       text = ggplot2::element_text(colour = "black", size = 16),
