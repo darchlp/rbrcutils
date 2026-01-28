@@ -129,7 +129,12 @@ consecutive_box_plot <- function(
     plot <- plot +
       ggplot2::scale_y_discrete(
         # add in the n counts
-        labels = NULL
+        labels = rlang::as_function(
+          ~ stringr::str_c( 
+            "n = ",
+            counts[.x]
+          )
+        )
       )
   }
   plot <- plot +
