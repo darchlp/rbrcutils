@@ -130,10 +130,17 @@ consecutive_cat_plot <- function(
           )
         )
       )
-  } else if (y_lab == FALSE) {
+  } else if (y_lab == FALSE) { 
     plot <- plot +
-      ggplot2::scale_y_discrete(
-        labels = NULL
+      ggplot2::scale_y_discrete( # I almost always want to show the n count per row
+        # add in the n counts
+        labels = rlang::as_function(
+          ~ stringr::str_c(
+            # stringr::str_wrap(.x, label_width),
+            "n = ",
+            counts[.x]
+          )
+        )
       )
   }
   plot <- plot +
