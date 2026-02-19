@@ -11,8 +11,11 @@ consecutive_cat_plot(
   y_lab = TRUE,
   print_data = FALSE,
   rev_fill = FALSE,
+  text_size = NULL,
+  pct_label = T,
   xaxis_size = 9,
   yaxis_size = 9,
+  round_digits = 1,
   legend_size = 12,
   label_width = 14,
   pct_cut = 0.15,
@@ -36,9 +39,15 @@ consecutive_cat_plot(
 
 \item{rev_fill}{Used to reverse the color of the bars in the plot.}
 
+\item{text_size}{The size of the text in the labels.}
+
+\item{pct_label}{To show the \% sign or not.}
+
 \item{xaxis_size}{The size of the text on the x-axis.}
 
 \item{yaxis_size}{The size of the text on the y-axis.}
+
+\item{round_digits}{Number of digits to round to.}
 
 \item{legend_size}{The size of the text on the legend.}
 

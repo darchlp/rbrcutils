@@ -6,8 +6,11 @@
 #' @param y_lab A logical indicating if the y-axis labels should be displayed.
 #' @param print_data A helper option to print some raw data to the console. Can be helpful when debugging, or adding data to reports.
 #' @param rev_fill Used to reverse the color of the bars in the plot.
+#' @param text_size The size of the text in the labels.
+#' @param pct_label To show the % sign or not.
 #' @param xaxis_size The size of the text on the x-axis.
 #' @param yaxis_size The size of the text on the y-axis.
+#' @param round_digits Number of digits to round to.
 #' @param legend_size The size of the text on the legend.
 #' @param label_width The number of characters before words wrap. Used in the y-axis and legend.
 #' @param pct_cut Categories with a pct > than this value will not print the % on the plot.
@@ -55,8 +58,11 @@ consecutive_cat_plot <- function(
   y_lab = TRUE,
   print_data = FALSE,
   rev_fill = FALSE,
+  text_size = NULL,
+  pct_label = T,
   xaxis_size = 9,
   yaxis_size = 9,
+  round_digits = 1,
   legend_size = 12,
   label_width = 14,
   pct_cut = 0.15,
@@ -166,16 +172,18 @@ consecutive_cat_plot <- function(
     ggplot2::xlab(NULL) +
     ggplot2::ylab(NULL) +
     ggplot2::coord_cartesian(clip = "off") +
+
     ggplot2::geom_text(
       ggplot2::aes(
         label = ifelse(
           pct >= pct_cut,
-          paste0(format(round(100 * pct, 1), nsmall = 1), "%"),
+          paste0(format(round(100 * pct, round_digits), nsmall = round_digits), ifelse(pct_label,"%","")),
           NA
         ),
-        vjust = ifelse(pct >= 0.10, "centre", "centre"),
+        vjust = ifelse(pct >= 0.10, "centre", "centre")
       ),
       colour = "white",
+      size = text_size,
       fontface = "bold",
       check_overlap = T,
       position = ggplot2::position_stack(vjust = 0.5)
@@ -208,3 +216,4 @@ consecutive_cat_plot <- function(
 
   return(plot)
 }
+
