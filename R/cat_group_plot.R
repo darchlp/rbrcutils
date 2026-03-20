@@ -5,10 +5,15 @@
 #' @param xlab The x-axis label.
 #' @param yvar The grouping variable to include in the plot.
 #' @param ylab The y-axis label.
+#' @param horizontal To flip the plot to be horizontal.
 #' @param colors A named vector of colours to assign to each level of the `xvar` variable in format of `description == color code`. The order of the vector will be used in the legend.
 #' @param label_width The number of characters before y-axis labels wrap. 
 #' @param wrap_length The number of characters before the legend labels wrap.
 #' @param pct_cut Categories with a pct > than this value will not print the % on the plot.
+#' @param pct_label To show the % sign or not.
+#' @param xaxis_size The size of the text on the x-axis.
+#' @param yaxis_size The size of the text on the y-axis.
+#' @param round_digits Number of digits to round to.
 #' @param legend_size The size of the text on the legend.
 #' @param save A logical to determine if the plot should be saved to your working directory "plots/**.png".
 #' @param bg Background color.
@@ -61,10 +66,16 @@ cat_group_plot <- function(
   xlab = NULL,
   yvar,
   ylab = NULL,
+  horizontal = F,
   colors,
   label_width = 20,
   pct_cut = 0.06,
+  text_size = NULL,
+  pct_label = T,
+  xaxis_size = 9,
+  yaxis_size = 9,
   wrap_length = 14,
+  round_digits = 1,
   legend_size = 12,
   save = FALSE,
   bg = "transparent",
@@ -91,8 +102,23 @@ cat_group_plot <- function(
     ggplot2::ggplot(ggplot2::aes(x = .data[[yvar]], y = pct, fill = value)) +
     ggplot2::geom_col() +
     ggplot2::scale_fill_manual(values = colors, limits = names(colors), labels = stringr::str_wrap(names(colors),wrap_length)) +                    
-    ggplot2::scale_y_continuous(labels = scales::percent) +
-    ggplot2::scale_x_discrete(
+    ggplot2::scale_y_continuous(labels = scales::percent)
+
+  if (horizontal == TRUE) {
+   plot <- plot +
+     ggplot2::scale_x_discrete(
+      labels = rlang::as_function(
+        ~ stringr::str_c(
+          stringr::str_wrap(.x, label_width),
+          "\nn = ",
+          counts[.x]
+        )
+      ),
+      position = "bottom"
+    )
+  } else if (horizontal == FALSE) {
+    plot <- plot +
+      ggplot2::scale_x_discrete(
       labels = rlang::as_function(
         ~ stringr::str_c(
           stringr::str_wrap(.x, label_width),
@@ -101,12 +127,14 @@ cat_group_plot <- function(
         )
       ),
       position = "top"
-    ) +
-    ggplot2::theme_minimal() +
-    ggplot2::theme(
+    )  
+  }
+    plot <- plot +
+      ggplot2::theme_minimal() +
+      ggplot2::theme(
       text = ggplot2::element_text(colour = "black", size = 12),
-      axis.text.x = ggplot2::element_text(size = 12),
-      axis.text.y = ggplot2::element_text(size = 12),
+      axis.text.x = ggplot2::element_text(size = xaxis_size),
+      axis.text.y = ggplot2::element_text(size = yaxis_size),
       axis.text = ggplot2::element_text(colour = "black"),
       axis.title.y = ggplot2::element_text(size = 12),
       legend.position = "bottom",
@@ -117,21 +145,25 @@ cat_group_plot <- function(
       legend.box.background = ggplot2::element_blank()
     ) +
     ggplot2::labs(x = ylab, y = xlab) + # These need to be the other way 
-    ggplot2::coord_cartesian(clip = "off") +
+    ggplot2::coord_cartesian(
+      clip = "off"
+    ) +
     ggplot2::geom_text(
       ggplot2::aes(
         label = ifelse(
           pct >= pct_cut,
-          paste0(format(round(100 * pct, 1), nsmall = 1), "%"),
+          paste0(format(round(100 * pct, round_digits), nsmall = round_digits), ifelse(pct_label,"%","")),
           NA
         ),
-        vjust = ifelse(pct >= 0.10, "centre", "centre"),
+        vjust = ifelse(pct >= 0.10, "centre", "centre")
       ),
       colour = "white",
+      size = text_size,
       fontface = "bold",
       check_overlap = T,
       position = ggplot2::position_stack(vjust = 0.5)
-    )
+    ) +
+    if (horizontal) coord_flip() 
 
   if (save == TRUE) {
     f_name <- paste0("plots/", xvar, "_", yvar, ".png")

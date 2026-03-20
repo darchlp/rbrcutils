@@ -10,10 +10,16 @@ cat_group_plot(
   xlab = NULL,
   yvar,
   ylab = NULL,
+  horizontal = F,
   colors,
   label_width = 20,
   pct_cut = 0.06,
+  text_size = NULL,
+  pct_label = T,
+  xaxis_size = 9,
+  yaxis_size = 9,
   wrap_length = 14,
+  round_digits = 1,
   legend_size = 12,
   save = FALSE,
   bg = "transparent",
@@ -33,13 +39,23 @@ cat_group_plot(
 
 \item{ylab}{The y-axis label.}
 
+\item{horizontal}{To flip the plot to be horizontal.}
+
 \item{colors}{A named vector of colours to assign to each level of the \code{xvar} variable in format of \verb{description == color code}. The order of the vector will be used in the legend.}
 
 \item{label_width}{The number of characters before y-axis labels wrap.}
 
 \item{pct_cut}{Categories with a pct > than this value will not print the \% on the plot.}
 
+\item{pct_label}{To show the \% sign or not.}
+
+\item{xaxis_size}{The size of the text on the x-axis.}
+
+\item{yaxis_size}{The size of the text on the y-axis.}
+
 \item{wrap_length}{The number of characters before the legend labels wrap.}
+
+\item{round_digits}{Number of digits to round to.}
 
 \item{legend_size}{The size of the text on the legend.}
 
